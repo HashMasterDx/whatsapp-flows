@@ -49,7 +49,7 @@ app.post("/", async (req, res) => {
   let decryptedRequest = null;
 
   try {
-    decryptedRequest = decryptRequest(req.body, 3, PASSPHRASE);
+    decryptedRequest = decryptRequest(req.body, PRIVATE_KEY, PASSPHRASE);
   } catch (err) {
     console.error(err);
     if (err instanceof FlowEndpointException) {
