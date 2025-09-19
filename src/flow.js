@@ -26,6 +26,7 @@ export async function solicitarLinkPago({ contrato_id }) {
 
   console.log('firma ' + signature)
   console.log('payload ' + payload)
+  console.log(LARAVEL_ENDPOINT + '/generar-link-pago', payload)
 
   const response = await axios.post(LARAVEL_ENDPOINT + '/generar-link-pago', payload, {
     headers: {
