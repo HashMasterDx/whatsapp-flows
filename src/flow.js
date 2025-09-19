@@ -144,13 +144,13 @@ export const getNextScreen = async (decryptedBody) => {
             },
           };
         } catch (error) {
-          console.error('Error al generar link de pago:', error);
+          console.error('Error al generar link de pago:', error.status);
 
           return {
             ...SCREEN_RESPONSES.ERROR,
             data: {
               ...SCREEN_RESPONSES.ERROR.data,
-              error_msg: error.code === 404 ? 'El contrato no fue encontrado' : 'Ocurrió un error al generar el link de pago. Por favor, inténtalo de nuevo más tarde.'
+              error_msg: error.status === 404 ? 'El contrato no fue encontrado' : 'Ocurrió un error al generar el link de pago. Por favor, inténtalo de nuevo más tarde.'
             },
           };
         }
