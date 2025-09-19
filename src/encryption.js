@@ -8,7 +8,6 @@
 import crypto from "crypto";
 
 export const decryptRequest = (body, privatePem, passphrase) => {
-  console.error(privatePem)
   const { encrypted_aes_key, encrypted_flow_data, initial_vector } = body;
 
   const privateKey = crypto.createPrivateKey({ key: privatePem, passphrase });
