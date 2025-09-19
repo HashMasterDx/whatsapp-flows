@@ -144,7 +144,7 @@ export const getNextScreen = async (decryptedBody) => {
             },
           };
         } catch (error) {
-          console.error('Error al generar link de pago:', error.message);
+          console.error('Error al generar link de pago:', error);
 
           return {
             ...SCREEN_RESPONSES.ERROR,
