@@ -67,27 +67,25 @@ const SCREEN_RESPONSES = {
     screen: "CONTRATO",
     data: {},
   },
+  CONCEPTOS: {
+    version: "3.0",
+    screen: "CONCEPTOS",
+    data: {},
+  },
   LINK: {
     version: "3.0",
     screen: "LINK",
+    data: {},
+  },
+  ERROR: {
+    version: "3.0",
+    screen: "ERROR",
     data: {},
   },
   COMPLETE: {
     version: "3.0",
     screen: "COMPLETE",
     data: {},
-  },
-  SUCCESS: {
-    version: "3.0",
-    screen: "SUCCESS",
-    data: {
-      extension_message_response: {
-        params: {
-          flow_token: "REPLACE_FLOW_TOKEN",
-          some_param_name: "PASS_CUSTOM_VALUE",
-        },
-      },
-    },
   },
 };
 
