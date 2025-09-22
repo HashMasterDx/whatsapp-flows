@@ -179,12 +179,12 @@ export const getNextScreen = async (decryptedBody) => {
 
           console.error('Response link pago:', response)
           // Asegúrate de que existe y es válido
-          if (response.success && response.linkpago != null) {
+          if (response.success && response.pago_url != null) {
             return {
               ...SCREEN_RESPONSES.LINK,
               data: {
                 ...SCREEN_RESPONSES.LINK.data,
-                linkpago: response.linkpago,
+                link_pago: response.pago_url,
               },
             };
           } else {
