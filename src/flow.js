@@ -41,7 +41,7 @@ export async function solicitarLinkPago({ contrato_id }) {
 export async function obtenerConceptosFactura({ contrato_id }) {
 
   const params = new URLSearchParams({
-    contrato_id: '2'
+    contrato_id: contrato_id
   });
 
   const payloadString = params.toString();
@@ -127,23 +127,28 @@ export const getNextScreen = async (decryptedBody) => {
       case "CONTRATO":
         // Handles user clicking on Continue to navigate to next screen
         try {
-          const response = await solicitarLinkPago({ contrato_id: data.contrato_id });
+          //const response = await solicitarLinkPago({ contrato_id: data.contrato_id });
+
+          const responseConceptos = await obtenerConceptosFactura({ contrato_id: data.contrato_id });
           let linkpago;
           // Asegúrate de que existe y es válido
-          if (response.success && response.pago_url) {
-            linkpago = response.pago_url;
-            console.log('Link de pago:', linkpago);
+          if (responseConceptos.success && responseConceptos.conceptos != null) {
+            return {
+              ...SCREEN_RESPONSES.CONCEPTOS,
+              data: {
+                ...SCREEN_RESPONSES.CONCEPTOS.data,
+                conceptos: responseConceptos.conceptos,
+              },
+            };
           } else {
-            throw new Error('Respuesta inválida del backend Laravel');
+            return {
+              ...SCREEN_RESPONSES.ERROR,
+              data: {
+                ...SCREEN_RESPONSES.ERROR.data,
+                error_msg: 'No se pudieron obtener los conceptos de la factura. Por favor, inténtalo de nuevo más tarde.'
+              },
+            };
           }
-          
-          return {
-            ...SCREEN_RESPONSES.LINK,
-            data: {
-              ...SCREEN_RESPONSES.LINK.data,
-              link_pago: linkpago,
-            },
-          };
         } catch (error) {
           console.error('Error al generar link de pago:', error.status);
 
