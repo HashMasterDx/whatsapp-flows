@@ -173,6 +173,40 @@ export const getNextScreen = async (decryptedBody) => {
           ...SCREEN_RESPONSES.CONTRATO,
         };
 
+      case "CONCEPTOS":
+        try{
+          const response = await solicitarLinkPago({ contrato_id: data.contrato_id });
+          // Asegúrate de que existe y es válido
+          if (response.success && response.linkpago != null) {
+            return {
+              ...SCREEN_RESPONSES.LINK,
+              data: {
+                ...SCREEN_RESPONSES.LINK.data,
+                linkpago: response.linkpago,
+              },
+            };
+          } else {
+            return {
+              ...SCREEN_RESPONSES.ERROR,
+              data: {
+                ...SCREEN_RESPONSES.ERROR.data,
+                error_msg: 'No se pudo generar el link de pago. Por favor, inténtalo de nuevo más tarde.'
+              },
+            };
+          }
+        }catch (error) {
+          console.error('Error al generar link de pago:', error.status);
+
+          return {
+            ...SCREEN_RESPONSES.ERROR,
+            data: {
+              ...SCREEN_RESPONSES.ERROR.data,
+              error_msg: error.status === 404 ? 'El contrato no fue encontrado' : 'Ocurrió un error al generar el link de pago. Por favor, inténtalo de nuevo más tarde.'
+            },
+          };
+        }
+
+
       case "LINK":
         
         return {
