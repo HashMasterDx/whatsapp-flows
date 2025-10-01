@@ -94,6 +94,7 @@ app.listen(PORT, () => {
 });
 
 function isRequestSignatureValid(req) {
+  console.error(req)
   if(!APP_SECRET) {
     console.warn("App Secret is not set up. Please Add your app secret in /.env file to check for request validation");
     return true;
