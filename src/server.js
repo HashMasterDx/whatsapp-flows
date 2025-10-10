@@ -84,6 +84,35 @@ app.post("/", async (req, res) => {
   res.send(encryptResponse(screenResponse, aesKeyBuffer, initialVectorBuffer));
 });
 
+app.post("/trans" , async (req, res) => {
+  // Suponiendo que 'req.rawBody' contiene el string JSON que recibes.
+  const rawBodyString = req.rawBody;
+
+  try {
+    // 1. Convertir el string JSON a un objeto JavaScript.
+    const data = JSON.parse(rawBodyString);
+
+    // 2. Validar si el 'type' es "charge.succeeded".
+    if (data.type === "charge.succeeded") {
+
+      // 3. Si es válido, obtener el ID de la transacción.
+      const transactionId = data.transaction.id;
+
+      console.log("Cargo exitoso ✅");
+      console.log("El ID de la transacción es:", transactionId); // Esto imprimirá "trqwplvbrhdlxfyhnubn"
+
+      // Aquí puedes continuar con tu lógica (e.g., guardar en la base de datos).
+
+    } else {
+      console.log("El evento no es un cargo exitoso. Tipo recibido:", data.type);
+    }
+
+  } catch (error) {
+    console.error("Error al procesar el JSON:", error);
+    // Manejar el caso en que el rawBody no sea un JSON válido.
+  }
+});
+
 app.get("/", (req, res) => {
   res.send(`<pre>Nothing to see here.
 Checkout README.md to start.</pre>`);
@@ -94,8 +123,6 @@ app.listen(PORT, () => {
 });
 
 function isRequestSignatureValid(req) {
-  console.error(req.rawBody)
-  console.error(PRIVATE_KEY)
   if(!APP_SECRET) {
     console.warn("App Secret is not set up. Please Add your app secret in /.env file to check for request validation");
     return true;
