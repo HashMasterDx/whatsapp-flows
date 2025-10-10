@@ -102,15 +102,18 @@ app.post("/trans" , async (req, res) => {
       console.log("El ID de la transacción es:", transactionId); // Esto imprimirá "trqwplvbrhdlxfyhnubn"
 
       // Aquí puedes continuar con tu lógica (e.g., guardar en la base de datos).
-
+      res.status(200).send({ status: "received" });
     } else if (data.type === "verification") {
       console.log("La petición contiene:", data);
+      res.status(200).send({ status: "received" });
     } else {
       console.log("Tipo de evento no manejado:", data.type);
+      res.status(200).send({ status: "event_not_handled" });
     }
 
   } catch (error) {
     console.error("Error al procesar el JSON:", error);
+    res.status(400).send({ error: "Invalid JSON format" });
     // Manejar el caso en que el rawBody no sea un JSON válido.
   }
 });
