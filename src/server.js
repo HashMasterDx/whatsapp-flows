@@ -103,8 +103,10 @@ app.post("/trans" , async (req, res) => {
 
       // Aquí puedes continuar con tu lógica (e.g., guardar en la base de datos).
 
+    } else if (data.type === "verification") {
+      console.log("La petición contiene:", data);
     } else {
-      console.log("El evento no es un cargo exitoso. Tipo recibido:", data.type);
+      console.log("Tipo de evento no manejado:", data.type);
     }
 
   } catch (error) {
