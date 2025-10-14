@@ -99,11 +99,11 @@ app.post("/trans" , async (req, res) => {
       // 3. Si es válido, obtener el ID de la transacción.
       const transactionId = data.transaction.id;
 
-      const signature = generateHmacSignature({ id: transactionId }, NODE_HMAC_SECRET);
-
       let payload = JSON.stringify({
-        "id": transactionId
+        id: transactionId
       });
+
+      const signature = generateHmacSignature(payload, NODE_HMAC_SECRET);
 
       console.log("Signature generated:", signature);
       console.log("Data to be sent:", payload);

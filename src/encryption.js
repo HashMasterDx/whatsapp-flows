@@ -94,8 +94,7 @@ export const FlowEndpointException = class FlowEndpointException extends Error {
   }
 }
 
-export const generateHmacSignature = (body, secret) => {
-  const payloadString = body.toString() || JSON.stringify(body);
+export const generateHmacSignature = (payloadString, secret) => {
 
   return crypto
     .createHmac("sha256", secret)
