@@ -101,12 +101,19 @@ app.post("/trans" , async (req, res) => {
 
       const signature = generateHmacSignature({ id: transactionId }, NODE_HMAC_SECRET);
 
-      const response = await axios.post(API_URL + '/liquidar-transaccion', {
-        id: transactionId
-      }, {headers: {
-        "Content-Type": "application/json",
+      let data = JSON.stringify({
+        "id": transactionId
+      });
+
+      console.log("Signature generated:", signature);
+      console.log("Data to be sent:", data);
+
+      const response = await axios.post(API_URL + '/liquidar-transaccion', data, {
+        headers: {
+          "Content-Type": "application/json",
           "X-Signature": signature,
-      }});
+        },
+      });
 
       res.status(200).send({ status: "transaction_processed", data: response.data });
     } else if (data.type === "verification") {
