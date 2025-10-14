@@ -6,9 +6,10 @@
  */
 
 import express from "express";
-import { decryptRequest, encryptResponse, FlowEndpointException } from "./encryption.js";
+import {decryptRequest, encryptResponse, FlowEndpointException, generateHmacSignature} from "./encryption.js";
 import { getNextScreen } from "./flow.js";
 import crypto from "crypto";
+import axios from "axios";
 
 const app = express();
 
@@ -21,7 +22,7 @@ app.use(
   }),
 );
 
-const { APP_SECRET, PRIVATE_KEY, PASSPHRASE = "", PORT = "3000" } = process.env;
+const { APP_SECRET, PRIVATE_KEY, PASSPHRASE = "", PORT = "3000", API_URL, NODE_HMAC_SECRET } = process.env;
 
 
 /*
@@ -98,11 +99,16 @@ app.post("/trans" , async (req, res) => {
       // 3. Si es válido, obtener el ID de la transacción.
       const transactionId = data.transaction.id;
 
-      console.log("Cargo exitoso ✅");
-      console.log("El ID de la transacción es:", transactionId); // Esto imprimirá "trqwplvbrhdlxfyhnubn"
+      const signature = generateHmacSignature({ id: transactionId }, NODE_HMAC_SECRET);
 
-      // Aquí puedes continuar con tu lógica (e.g., guardar en la base de datos).
-      res.status(200).send({ status: "received" });
+      const response = await axios.post(API_URL + '/liquidar-transaccion', {
+        id: transactionId
+      }, {headers: {
+        "Content-Type": "application/json",
+          "X-Signature": signature,
+      }});
+
+      res.status(200).send({ status: "transaction_processed", data: response.data });
     } else if (data.type === "verification") {
       console.log("La petición contiene:", data);
       res.status(200).send({ status: "received" });

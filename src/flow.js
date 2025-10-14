@@ -7,7 +7,7 @@
 
 // this object is generated from Flow Builder under "..." > Endpoint > Snippets > Responses
 // To navigate to a screen, return the corresponding response from the endpoint. Make sure the response is enccrypted.
-import { FlowEndpointException } from './encryption.js';
+import {FlowEndpointException, generateHmacSignature} from './encryption.js';
 
 import axios from 'axios';
 import crypto from 'crypto';
@@ -44,13 +44,7 @@ export async function obtenerConceptosFactura({ contrato_id }) {
     contrato_id: contrato_id
   });
 
-  const payloadString = params.toString();
-
-  const signature = crypto
-    .createHmac("sha256", NODE_HMAC_SECRET)
-    .update(payloadString)
-    .digest("hex");
-
+  const signature = generateHmacSignature(params.toString(), NODE_HMAC_SECRET);
 
   const response = await axios.get(LARAVEL_ENDPOINT + '/consultar-conceptos-factura' + '?contrato_id=' + contrato_id, {
     headers: {
