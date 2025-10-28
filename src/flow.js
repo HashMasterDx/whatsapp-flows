@@ -169,7 +169,7 @@ export const getNextScreen = async (decryptedBody) => {
 
       case "CONCEPTOS":
         try{
-          const response = await solicitarLinkPago({ contrato_id: data.contrato_id });
+          const response = await solicitarLinkPago({ contrato_id: data.contrato_id, tipo_pago: data.tipo_pago });
 
           console.error('Response link pago:', response)
           // Asegúrate de que existe y es válido
