@@ -7,7 +7,7 @@
 
 // this object is generated from Flow Builder under "..." > Endpoint > Snippets > Responses
 // To navigate to a screen, return the corresponding response from the endpoint. Make sure the response is enccrypted.
-import {FlowEndpointException, generateHmacSignature} from './encryption.js';
+import {generateHmacSignature} from './encryption.js';
 
 import axios from 'axios';
 import crypto from 'crypto';
@@ -28,14 +28,12 @@ export async function solicitarLinkPago({ contrato_id, tipo_pago  }) {
   console.log('payload ' + payload)
   console.log(LARAVEL_ENDPOINT + '/generar-link-pago', payload)
 
-  const response = await axios.post(LARAVEL_ENDPOINT + '/generar-link-pago', payload, {
+  return await axios.post(LARAVEL_ENDPOINT + '/generar-link-pago', payload, {
     headers: {
       "Content-Type": "application/json",
       "X-Signature": signature,
     },
   });
-
-  return response.data;
 }
 
 export async function obtenerConceptosFactura({ contrato_id }) {
@@ -173,7 +171,7 @@ export const getNextScreen = async (decryptedBody) => {
 
           console.error('Response link pago:', response)
           // Asegúrate de que existe y es válido
-          if (response.success && response.pago_url != null) {
+          if (response.data.success && response.data.pago_url != null) {
             return {
               ...SCREEN_RESPONSES.LINK,
               data: {
@@ -186,7 +184,7 @@ export const getNextScreen = async (decryptedBody) => {
               ...SCREEN_RESPONSES.ERROR,
               data: {
                 ...SCREEN_RESPONSES.ERROR.data,
-                error_msg: 'No se pudo generar el link de pago. Por favor, inténtalo de nuevo más tarde.'
+                error_msg: response.status === 500 ? 'No se pudo generar el link de pago. Por favor, inténtalo de nuevo más tarde.' : response.data.message
               },
             };
           }
