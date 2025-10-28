@@ -16,8 +16,8 @@ import crypto from 'crypto';
 const LARAVEL_ENDPOINT = process.env.API_URL;
 const NODE_HMAC_SECRET = process.env.NODE_HMAC_SECRET;
 
-export async function solicitarLinkPago({ contrato_id }) {
-  const payload = JSON.stringify({ contrato_id });
+export async function solicitarLinkPago({ contrato_id, tipo_pago  }) {
+  const payload = JSON.stringify({ contrato_id, tipo_pago });
 
   const signature = crypto
       .createHmac("sha256", NODE_HMAC_SECRET)
