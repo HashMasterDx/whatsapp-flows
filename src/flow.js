@@ -176,7 +176,7 @@ export const getNextScreen = async (decryptedBody) => {
               ...SCREEN_RESPONSES.LINK,
               data: {
                 ...SCREEN_RESPONSES.LINK.data,
-                link_pago: response.pago_url,
+                link_pago: response.data.pago_url,
               },
             };
           } else {
