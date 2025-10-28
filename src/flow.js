@@ -195,7 +195,7 @@ export const getNextScreen = async (decryptedBody) => {
             ...SCREEN_RESPONSES.ERROR,
             data: {
               ...SCREEN_RESPONSES.ERROR.data,
-              error_msg: error.status === 500 ? 'Ocurrió un error al generar el link de pago. Por favor, inténtalo de nuevo más tarde.' : error.data.message
+              error_msg: error.status === 500 ? 'Ocurrió un error al generar el link de pago. Por favor, inténtalo de nuevo más tarde.' : error.response.data.message
             },
           };
         }
