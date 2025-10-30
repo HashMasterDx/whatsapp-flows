@@ -106,7 +106,7 @@ export const getNextScreen = async (decryptedBody) => {
   }
 
   // handle initial request when opening the flow and display LOAN screen
-  if (action === "INIT") {
+  if (action === "INIT" || (action === "BACK" && screen === "CONCEPTOS")) {
     return {
       ...SCREEN_RESPONSES.CONTRATO,
     };
