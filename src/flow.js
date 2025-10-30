@@ -106,9 +106,19 @@ export const getNextScreen = async (decryptedBody) => {
   }
 
   // handle initial request when opening the flow and display LOAN screen
-  if (action === "INIT" || (action === "BACK" && (screen === "LINK" || screen === "CONCEPTOS"))) {
+  if (action === "INIT") {
     return {
       ...SCREEN_RESPONSES.CONTRATO,
+    };
+  }
+
+  if (action === "BACK" && screen === "LINK"){
+    return {
+      ...SCREEN_RESPONSES.ERROR,
+      data: {
+        ...SCREEN_RESPONSES.ERROR.data,
+        error_msg: 'Ya haz generado un link de pago. Por favor, completa el pago o regresa al inicio.',
+      },
     };
   }
 
