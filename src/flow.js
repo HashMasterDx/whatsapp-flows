@@ -126,10 +126,10 @@ export const getNextScreen = async (decryptedBody) => {
   if (action === "BACK") {
     if  (screen === "LINK") {
       return {
-        ...SCREEN_RESPONSES.ERROR,
+        ...SCREEN_RESPONSES.END,
         data: {
-          ...SCREEN_RESPONSES.ERROR.data,
-          error_msg: 'Ya haz generado un link de pago. Por favor, completa el pago o regresa al inicio.',
+          ...SCREEN_RESPONSES.END.data,
+          end_msg: 'Ya haz generado un link de pago. Por favor, completa el pago o regresa al inicio.',
         },
       };
     }else{
@@ -242,13 +242,23 @@ export const getNextScreen = async (decryptedBody) => {
         }catch (error) {
           console.error('Error al generar link de pago:', error);
 
-          return {
-            ...SCREEN_RESPONSES.ERROR,
-            data: {
-              ...SCREEN_RESPONSES.ERROR.data,
-              error_msg: error.status === 500 ? 'Ocurrió un error al generar el link de pago. Por favor, inténtalo de nuevo más tarde.' : error.response.data.message
-            },
-          };
+          if (error.status === 500){
+            return {
+              ...SCREEN_RESPONSES.ERROR,
+              data: {
+                ...SCREEN_RESPONSES.ERROR.data,
+                error_msg: 'Ocurrió un error al generar el link de pago. Por favor, inténtalo de nuevo más tarde.'
+              },
+            }
+          } else {
+            return {
+              ...SCREEN_RESPONSES.END,
+              data: {
+                ...SCREEN_RESPONSES.END.data,
+                end_msg: error.response.data.message
+              },
+            };
+          }
         }
 
 
