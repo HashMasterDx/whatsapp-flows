@@ -16,13 +16,13 @@ import crypto from 'crypto';
 const LARAVEL_ENDPOINT = process.env.API_URL;
 const NODE_HMAC_SECRET = process.env.NODE_HMAC_SECRET;
 
-export async function solicitarLinkPago({ contrato_id, tipo_pago  }) {
-  const payload = JSON.stringify({ contrato_id, tipo_pago });
+export async function solicitarLinkPago({contrato_id, tipo_pago}) {
+  const payload = JSON.stringify({contrato_id, tipo_pago});
 
   const signature = crypto
-      .createHmac("sha256", NODE_HMAC_SECRET)
-      .update(payload)
-      .digest("hex");
+    .createHmac("sha256", NODE_HMAC_SECRET)
+    .update(payload)
+    .digest("hex");
 
   console.log('firma ' + signature)
   console.log('payload ' + payload)
@@ -36,7 +36,7 @@ export async function solicitarLinkPago({ contrato_id, tipo_pago  }) {
   });
 }
 
-export async function obtenerConceptosFactura({ contrato_id }) {
+export async function obtenerConceptosFactura({contrato_id}) {
 
   const params = new URLSearchParams({
     contrato_id: contrato_id
@@ -65,6 +65,11 @@ const SCREEN_RESPONSES = {
     screen: "CONCEPTOS",
     data: {},
   },
+  SALDO_A_FAVOR: {
+    version: "3.0",
+    screen: "SALDO_A_FAVOR",
+    data: {},
+  },
   LINK: {
     version: "3.0",
     screen: "LINK",
@@ -75,6 +80,11 @@ const SCREEN_RESPONSES = {
     screen: "ERROR",
     data: {},
   },
+  END: {
+    version: "3.0",
+    screen: "END",
+    data: {},
+  },
   COMPLETE: {
     version: "3.0",
     screen: "COMPLETE",
@@ -83,7 +93,7 @@ const SCREEN_RESPONSES = {
 };
 
 export const getNextScreen = async (decryptedBody) => {
-  const { screen, data, version, action, flow_token } = decryptedBody;
+  const {screen, data, version, action, flow_token} = decryptedBody;
   // handle health check request
   if (action === "ping") {
     return {
@@ -113,14 +123,20 @@ export const getNextScreen = async (decryptedBody) => {
     };
   }
 
-  if (action === "BACK" && screen === "LINK"){
-    return {
-      ...SCREEN_RESPONSES.ERROR,
-      data: {
-        ...SCREEN_RESPONSES.ERROR.data,
-        error_msg: 'Ya haz generado un link de pago. Por favor, completa el pago o regresa al inicio.',
-      },
-    };
+  if (action === "BACK") {
+    if  (screen === "LINK") {
+      return {
+        ...SCREEN_RESPONSES.ERROR,
+        data: {
+          ...SCREEN_RESPONSES.ERROR.data,
+          error_msg: 'Ya haz generado un link de pago. Por favor, completa el pago o regresa al inicio.',
+        },
+      };
+    }else{
+      return {
+        ...SCREEN_RESPONSES.CONTRATO,
+      };
+    }
   }
 
   if (action === "data_exchange") {
@@ -132,8 +148,7 @@ export const getNextScreen = async (decryptedBody) => {
         try {
           //const response = await solicitarLinkPago({ contrato_id: data.contrato_id });
 
-          const responseConceptos = await obtenerConceptosFactura({ contrato_id: data.contrato_id });
-          let linkpago;
+          const responseConceptos = await obtenerConceptosFactura({contrato_id: data.contrato_id});
           // Asegúrate de que existe y es válido
           if (responseConceptos.success && responseConceptos.conceptos != null) {
             return {
@@ -153,7 +168,7 @@ export const getNextScreen = async (decryptedBody) => {
             };
           }
         } catch (error) {
-          console.error('Error al generar link de pago:', error.status);
+          console.error('Error al generar link de pago:', error.response.data.message);
 
           return {
             ...SCREEN_RESPONSES.ERROR,
@@ -177,8 +192,33 @@ export const getNextScreen = async (decryptedBody) => {
         };
 
       case "CONCEPTOS":
-        try{
-          const response = await solicitarLinkPago({ contrato_id: data.contrato_id, tipo_pago: data.tipo_pago });
+        try {
+          const responseConceptos = await obtenerConceptosFactura({contrato_id: data.contrato_id});
+
+          let aplica_saldo_favor = responseConceptos.aplica_saldo_favor;
+          let saldo_a_favor = responseConceptos.saldo_a_favor;
+          let total_pendiente = responseConceptos.total;
+          let max_aplicable = responseConceptos.max_aplicable_saldo_favor;
+
+          console.log(responseConceptos)
+
+          if (aplica_saldo_favor) {
+            return {
+              ...SCREEN_RESPONSES.SALDO_A_FAVOR,
+              data: {
+                ...SCREEN_RESPONSES.SALDO_A_FAVOR.data,
+                saldo_a_favor: saldo_a_favor,
+                total_pendiente: total_pendiente,
+                max_aplicable: max_aplicable,
+                init_values: {
+                  monto_saldo: '0',
+                },
+                error_messages: {}
+              },
+            }
+          }
+
+          const response = await solicitarLinkPago({contrato_id: data.contrato_id, tipo_pago: data.tipo_pago});
 
           console.error('Response link pago:', response)
           // Asegúrate de que existe y es válido
@@ -217,6 +257,54 @@ export const getNextScreen = async (decryptedBody) => {
         return {
           ...SCREEN_RESPONSES.COMPLETE
         };
+
+      case "SALDO_A_FAVOR":
+        try {
+
+          const response = await solicitarLinkPago({ contrato_id: data.contrato_id, tipo_pago: data.tipo_pago, monto_saldo: data.monto_saldo })
+
+          if (response.data.success && response.data.pago_url != null) {
+            return {
+              ...SCREEN_RESPONSES.LINK,
+              data: {
+                ...SCREEN_RESPONSES.LINK.data,
+                link_pago: response.data.pago_url,
+                monto_a_pagar: response.data.monto_pasarela,
+              },
+            };
+          } else {
+            return {
+              ...SCREEN_RESPONSES.ERROR,
+              data: {
+                ...SCREEN_RESPONSES.ERROR.data,
+                error_msg: response.status === 500 ? 'No se pudo generar el link de pago. Por favor, inténtalo de nuevo más tarde.' : response.data.message
+              },
+            };
+          }
+
+        } catch (error) {
+          console.error('Error al generar link de pago:', error);
+
+
+          if (error.status === 500){
+            return {
+              ...SCREEN_RESPONSES.ERROR,
+              data: {
+                ...SCREEN_RESPONSES.ERROR.data,
+                error_msg: 'Ocurrió un error al generar el link de pago. Por favor, inténtalo de nuevo más tarde.'
+              },
+            }
+          } else {
+            return {
+              ...SCREEN_RESPONSES.END,
+              data: {
+                ...SCREEN_RESPONSES.END.data,
+                end_msg: error.response.data.message
+              },
+            };
+          }
+
+        }
 
       default:
         break;
