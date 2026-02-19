@@ -107,6 +107,7 @@ export const getNextScreen = async (decryptedBody) => {
 
   // handle initial request when opening the flow and display LOAN screen
   if (action === "INIT") {
+    console.log("Flow initiated with token:", flow_token, "and data:", data)
     return {
       ...SCREEN_RESPONSES.CONTRATO,
     };
