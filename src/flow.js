@@ -155,10 +155,19 @@ export const getNextScreen = async (decryptedBody) => {
               ...SCREEN_RESPONSES.CONCEPTOS,
               data: {
                 ...SCREEN_RESPONSES.CONCEPTOS.data,
-                // RichText exige un arreglo de strings; Laravel manda objetos {descripcion, monto}.
-                conceptos: responseConceptos.conceptos.map(
-                  (c) => `${c.descripcion}: ${c.monto}`
-                ),
+                // RichText soporta tablas markdown (pipes), pero las filas deben ir
+                // en un solo string/elemento sin línea en blanco entre ellas: si se
+                // manda como arreglo de strings, cada elemento se renderiza como
+                // párrafo aparte y la tabla se rompe.
+                conceptos: [
+                  [
+                    '| Concepto | Monto |',
+                    '| --- | --- |',
+                    ...responseConceptos.conceptos.map(
+                      (c) => `| ${c.descripcion} | ${c.monto} |`
+                    ),
+                  ].join('\n'),
+                ],
               },
             };
           } else {
