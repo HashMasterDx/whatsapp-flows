@@ -171,7 +171,9 @@ export const getNextScreen = async (decryptedBody) => {
                       (c) => `| ${c.descripcion} | ${c.monto} |`
                     ),
                   ].join('\n'),
-                  `**${responseConceptos.total}**`,
+                  // "##" = TextSubheading: más grande que el body, sin competir
+                  // con el tamaño de la dirección (que usa "#").
+                  `## ${responseConceptos.total}`,
                 ],
               },
             };
