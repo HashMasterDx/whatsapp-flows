@@ -158,8 +158,12 @@ export const getNextScreen = async (decryptedBody) => {
                 // RichText soporta tablas markdown (pipes), pero las filas deben ir
                 // en un solo string/elemento sin línea en blanco entre ellas: si se
                 // manda como arreglo de strings, cada elemento se renderiza como
-                // párrafo aparte y la tabla se rompe.
+                // párrafo aparte y la tabla se rompe. Cada elemento del arreglo sí
+                // es su propio párrafo, así que dirección/tabla/total van separados
+                // para que cada uno se vea como bloque independiente.
                 conceptos: [
+                  // "#" = TextHeading (negritas, texto grande) para validación visual del cliente.
+                  `# ${responseConceptos.direccion}`,
                   [
                     '| Concepto | Monto |',
                     '| --- | --- |',
@@ -167,6 +171,7 @@ export const getNextScreen = async (decryptedBody) => {
                       (c) => `| ${c.descripcion} | ${c.monto} |`
                     ),
                   ].join('\n'),
+                  `**${responseConceptos.total}**`,
                 ],
               },
             };
