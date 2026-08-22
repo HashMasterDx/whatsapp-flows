@@ -155,7 +155,10 @@ export const getNextScreen = async (decryptedBody) => {
               ...SCREEN_RESPONSES.CONCEPTOS,
               data: {
                 ...SCREEN_RESPONSES.CONCEPTOS.data,
-                conceptos: responseConceptos.conceptos,
+                // RichText exige un arreglo de strings; Laravel manda objetos {descripcion, monto}.
+                conceptos: responseConceptos.conceptos.map(
+                  (c) => `${c.descripcion}: ${c.monto}`
+                ),
               },
             };
           } else {
